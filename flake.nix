@@ -20,7 +20,10 @@
   outputs = { self, nixpkgs, rust-overlay, flake-utils, crane, ... }: 
     flake-utils.lib.eachDefaultSystem (system:
       let
-        overlays = [(import rust-overlay)];
+        overlays = [
+          (import rust-overlay)
+          (import ./nix/overlay.nix)
+        ];
 
         pkgs = import nixpkgs {
           inherit system overlays;
@@ -41,7 +44,11 @@
           version = "0.0.0";
           pname = "mycrate-workspace";
 
-          buildInputs = [];
+          buildInputs = with pkgs; [
+            librusty_v8
+          ];
+
+          RUSTY_V8_ARCHIVE = "${pkgs.librusty_v8}/lib/librusty_v8.a";
         };
 
         cargoArtifacts = craneLib.buildDepsOnly commonArgs;
@@ -59,6 +66,15 @@
         });
       in
       {
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            rustVersion
+            librusty_v8
+          ];
+
+          RUSTY_V8_ARCHIVE = "${pkgs.librusty_v8}/lib/librusty_v8.a";
+        };
+
         packages = {
           default = mycrate;
         };
