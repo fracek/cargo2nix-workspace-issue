@@ -3,37 +3,55 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    rust-overlay.url = "github:oxalica/rust-overlay";
-    flake-utils.url = "github:numtide/flake-utils";
-    cargo2nix.url = "github:cargo2nix/cargo2nix/unstable";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    crane = {
+      url = "github:ipetkov/crane";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils, cargo2nix, ... }: 
+  outputs = { self, nixpkgs, rust-overlay, flake-utils, crane, ... }: 
     flake-utils.lib.eachDefaultSystem (system:
       let
-        overlays = [
-          cargo2nix.overlays.default
-          (import rust-overlay)
-        ];
+        overlays = [(import rust-overlay)];
 
         pkgs = import nixpkgs {
           inherit system overlays;
         };
 
+        inherit (pkgs) lib;
+
         rustVersion = pkgs.rust-bin.stable.latest.default.override {
           extensions = [ "rust-src" ];
         };
 
-        rustPkgs = pkgs.rustBuilder.makePackageSet {
-          packageFun = import ./Cargo.nix;
-          rustToolchain = rustVersion;
-        };
-      in
-      {
-        devShells.default = rustPkgs.workspaceShell {
+        craneLib = (crane.mkLib pkgs).overrideToolchain rustVersion;
+        src = craneLib.cleanCargoSource (craneLib.path ./.);
+
+        commonArgs = {
+          inherit src;
+
+          buildInputs = [];
         };
 
-        packages.default = rustPkgs.workspace.mycrate { };
+        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+
+        mycrate = craneLib.buildPackage (commonArgs // {
+          inherit cargoArtifacts;
+          cargoExtraArgs = "-p mycrate";
+        });
+      in
+      {
+        packages = {
+          default = mycrate;
+        };
       }
     );
 }
