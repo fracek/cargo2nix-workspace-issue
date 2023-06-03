@@ -38,14 +38,24 @@
         commonArgs = {
           inherit src;
 
+          version = "0.0.0";
+          pname = "mycrate-workspace";
+
           buildInputs = [];
         };
 
         cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 
-        mycrate = craneLib.buildPackage (commonArgs // {
-          inherit cargoArtifacts;
-          cargoExtraArgs = "-p mycrate";
+        mycrate =
+          let
+            manifest = craneLib.crateNameFromCargoToml {
+              cargoToml = ./mycrate/Cargo.toml;
+            };
+          in
+          craneLib.buildPackage (commonArgs // {
+            inherit cargoArtifacts;
+            inherit (manifest) pname version;
+            cargoExtraArgs = "-p mycrate";
         });
       in
       {
