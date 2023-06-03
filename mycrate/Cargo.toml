@@ -5,4 +5,5 @@ edition.workspace = true
 
 [dependencies]
 deno_core = "0.189.0"
+deno_runtime = "0.115.0"
 tokio.workspace = true

@@ -3,12 +3,11 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    rust-overlay = {
-      url = "github:oxalica/rust-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     flake-utils = {
       url = "github:numtide/flake-utils";
+    };
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     crane = {
@@ -60,7 +59,7 @@
           craneLib.buildPackage (commonArgs // {
             inherit cargoArtifacts;
             inherit (manifest) pname version;
-            cargoExtraArgs = "-p mycrate";
+            cargoExtraArgs = "-p ${manifest.pname}";
         });
       in
       {
@@ -74,6 +73,7 @@
         };
 
         packages = {
+          inherit cargoArtifacts;
           default = mycrate;
         };
       }
