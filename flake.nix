@@ -29,8 +29,6 @@
           inherit system overlays;
         };
 
-        inherit (pkgs) lib;
-
         rustVersion = pkgs.rust-bin.stable.latest.default.override {
           extensions = [ "rust-src" ];
         };
