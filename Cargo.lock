@@ -2162,8 +2162,7 @@ dependencies = [
 [[package]]
 name = "libffi-sys"
 version = "2.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f36115160c57e8529781b4183c2bb51fdc1f6d6d1ed345591d84be7703befb3c"
+source = "git+https://github.com/fracek/libffi-rs.git?rev=f46945885ae65ee0ec9b6675764cdbe0fb1f2616#f46945885ae65ee0ec9b6675764cdbe0fb1f2616"
 dependencies = [
  "cc",
 ]
@@ -4524,8 +4523,7 @@ dependencies = [
 [[package]]
 name = "v8"
 version = "0.73.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1bd3f04ba5065795dae6e3db668ff0b628920fbd2e39c1755e9b62d93660c3c"
+source = "git+https://github.com/fracek/rusty_v8.git?rev=8140a1a6d7a8296d68dfcf7efb6f30b9f1ae04a#8140a1a6d7a8296d68dfcf7efb6f30b9f1ae04a4"
 dependencies = [
  "bitflags 1.3.2",
  "fslock",

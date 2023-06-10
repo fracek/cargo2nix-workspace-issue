@@ -43,6 +43,7 @@
 
           buildInputs = with pkgs; [
             librusty_v8
+            libffi
           ];
 
           RUSTY_V8_ARCHIVE = "${pkgs.librusty_v8}/lib/librusty_v8.a";
