@@ -16,7 +16,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils, crane, ... }: 
+  outputs = { self, nixpkgs, rust-overlay, flake-utils, crane, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         overlays = [
@@ -32,11 +32,36 @@
           inherit crane pkgs;
           workspaceDir = ./.;
         };
+
+        aarch64Linux =
+          let
+            crossSystem = "aarch64-linux";
+            crossPkgs = import nixpkgs {
+              inherit overlays crossSystem;
+              localSystem = system;
+            };
+          in
+          pkgs.callPackage ./nix/cross.nix {
+            inherit crane crossSystem;
+            pkgs = crossPkgs;
+            workspaceDir = ./.;
+          };
+
+        crosses = {
+          "x86_64-linux" = aarch64Linux;
+          "x86_64-darwin" = { packages = { }; };
+          "aarch64-linux" = { packages = { }; };
+          "aarch64-darwin" = { packages = { }; };
+        };
+
+        cross = crosses.${system};
+
       in
       {
+        formatter = pkgs.nixpkgs-fmt;
         devShells.default = native.shell;
 
-        packages = native.packages;
+        packages = (native.packages // cross.packages);
       }
     );
 }

@@ -6,9 +6,9 @@ let
 
   buildLib = import ./build.nix { inherit pkgs crane rustToolchain workspaceDir; };
 in
-  {
-    shell = pkgs.mkShell (buildLib.buildArgs // { });
-    packages = {
-      mycrate = (buildLib.buildCrate { crate = ../mycrate; }).bin;
-    };
-  }
+{
+  shell = pkgs.mkShell (buildLib.buildArgs // { });
+  packages = {
+    mycrate = (buildLib.buildCrate { crate = ../mycrate; }).bin;
+  };
+}
