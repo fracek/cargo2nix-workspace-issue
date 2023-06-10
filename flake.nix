@@ -59,7 +59,10 @@
       in
       {
         formatter = pkgs.nixpkgs-fmt;
-        devShells.default = native.shell;
+        devShells = {
+          default = native.shell;
+          cross = cross.shell;
+        };
 
         packages = (native.packages // cross.packages);
       }
