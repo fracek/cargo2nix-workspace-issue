@@ -28,55 +28,15 @@
           inherit system overlays;
         };
 
-        rustVersion = pkgs.rust-bin.stable.latest.default.override {
-          extensions = [ "rust-src" ];
+        native = pkgs.callPackage ./nix/native.nix {
+          inherit crane pkgs;
+          workspaceDir = ./.;
         };
-
-        craneLib = (crane.mkLib pkgs).overrideToolchain rustVersion;
-        src = craneLib.cleanCargoSource (craneLib.path ./.);
-
-        commonArgs = {
-          inherit src;
-
-          version = "0.0.0";
-          pname = "mycrate-workspace";
-
-          buildInputs = with pkgs; [
-            librusty_v8
-            libffi
-          ];
-
-          RUSTY_V8_ARCHIVE = "${pkgs.librusty_v8}/lib/librusty_v8.a";
-        };
-
-        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
-
-        mycrate =
-          let
-            manifest = craneLib.crateNameFromCargoToml {
-              cargoToml = ./mycrate/Cargo.toml;
-            };
-          in
-          craneLib.buildPackage (commonArgs // {
-            inherit cargoArtifacts;
-            inherit (manifest) pname version;
-            cargoExtraArgs = "-p ${manifest.pname}";
-        });
       in
       {
-        devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            rustVersion
-            librusty_v8
-          ];
+        devShells.default = native.shell;
 
-          RUSTY_V8_ARCHIVE = "${pkgs.librusty_v8}/lib/librusty_v8.a";
-        };
-
-        packages = {
-          inherit cargoArtifacts;
-          default = mycrate;
-        };
+        packages = native.packages;
       }
     );
 }
