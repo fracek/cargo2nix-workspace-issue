@@ -64,12 +64,9 @@
       in
       {
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
+          buildInputs = [
             rustVersion
-            librusty_v8
           ];
-
-          RUSTY_V8_ARCHIVE = "${pkgs.librusty_v8}/lib/librusty_v8.a";
         };
 
         packages = {
